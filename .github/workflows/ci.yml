@@ -1,0 +1,46 @@
+name: CI
+
+# Runs on push and pull request
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # Basic validation job
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          find . -name "*.json" -not -path "./node_modules/*" -not -path "./.git/*" | while read jsonfile; do
+            echo "Validating $jsonfile"
+            if ! jq empty "$jsonfile" 2>/dev/null; then
+              echo "❌ Invalid JSON: $jsonfile"
+              exit 1
+            fi
+          done
+
+      - name: Check for large files (>5MB)
+        run: |
+          find . -type f -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./assets/outputs/*" | while read file; do
+            size=$(stat -c%s "$file" 2>/dev/null || wc -c <"$file")
+            if [ "$size" -gt 5242880 ]; then
+              echo "⚠️ Large file (>5MB): $file ($(numfmt --to=iec $size))"
+              # Don't fail on this, just warn
+            fi
+          done
+
+      - name: Validate Markdown (basic)
+        if: false # Disable for now; enable if you install remark-lint
+        run: |
+          echo "Markdown validation skipped - install remark-lint to enable"
+
+      - name: Filesize summary
+        run: |
+          echo "📊 Repository files:"
+          find . -type f -not -path "./node_modules/*" -not -path "./.git/*" | head -20
+          echo "... and more"

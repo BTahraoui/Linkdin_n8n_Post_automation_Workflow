@@ -1,0 +1,873 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Triggers\nManual + Schedule (12:00 and 18:00 daily)",
+        "height": 320,
+        "width": 512,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -16
+      ],
+      "id": "b04555eb-3f73-4f5b-8c14-999eb86e9395",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Content Generation\nTopic + style randomisers (with anti-repeat) feed the post writer and image prompt engineer",
+        "height": 560,
+        "width": 760,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        368
+      ],
+      "id": "8d25c201-cc1d-4c45-bdba-7e81a55d0c4d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Image Generation\nCloudflare account ID is cached after first run. If Flux fails, the workflow falls back to a text-only post",
+        "height": 612,
+        "width": 1484,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        992
+      ],
+      "id": "df43ad32-7b4b-4849-a0a5-f779256f3833",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Publish & Log\nImage post (primary) or text-only post (fallback), then logged to static data",
+        "height": 548,
+        "width": 796,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        896,
+        368
+      ],
+      "id": "64a570be-1319-4a5f-81ae-5fc53256a5eb",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        688,
+        112
+      ],
+      "id": "ca66f5b1-775c-4418-af46-28000e5edf65",
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            },
+            {
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        112
+      ],
+      "id": "2861489a-ce77-4e98-9acb-8ab53f109e9a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const topics = [\n  \"The OSI Model layers\",\n  \"TCP vs UDP traffic\",\n  \"How DNS finds website IPs\",\n  \"How DHCP assigns IP addresses\",\n  \"Switches vs Routers\",\n  \"MAC addresses vs IP addresses\",\n  \"Public vs Private IP ranges\",\n  \"Subnetting basics\",\n  \"Common network ports (HTTP, HTTPS, SSH)\",\n  \"Ping and Traceroute tools\",\n  \"The CIA Triad (Confidentiality, Integrity, Availability)\",\n  \"How Firewalls filter traffic (Stateful vs Stateless)\",\n  \"Symmetric vs Asymmetric Encryption\",\n  \"What is a VPN (IPsec vs SSL)\",\n  \"AAA Security (Authentication, Authorization, and Accounting)\",\n  \"How Access Control Lists (ACLs) block traffic\",\n  \"Social Engineering threats (Phishing and Social Engineering)\",\n  \"Securing device access (SSH vs Telnet and strong passwords)\",\n  \"What is a Malware attack (Viruses, Worms, and Trojans)\",\n  \"MAC Address Spoofing and Port Security basics\",\n  \"What is Cloud Computing (IaaS vs PaaS vs SaaS)\",\n  \"Containers vs Virtual Machines\",\n  \"What is Load Balancing\",\n  \"CDN (Content Delivery Network) explained\",\n  \"What is Kubernetes in simple terms\",\n  \"VLANs and network segmentation\",\n  \"NAT (Network Address Translation) explained\",\n  \"How ARP resolves IP to MAC addresses\",\n  \"Wireless security (WPA2 vs WPA3)\",\n  \"OSPF vs BGP routing protocols\",\n  \"What is CI/CD in networking\",\n  \"Infrastructure as Code basics\",\n  \"Network automation with Python\",\n  \"How APIs power modern networking\",\n  \"What is Git version control\",\n  \"How to build a home lab for CCNA practice\",\n  \"Top skills every network engineer needs\",\n  \"How to prepare for the CCNA exam\",\n  \"Why documentation matters in IT\",\n  \"How to explain technical concepts to non-technical people\"\n];\n\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.usedTopics) { staticData.usedTopics = []; }\n\nconst recentTopics = staticData.usedTopics.slice(-7);\nlet availableTopics = topics.filter(t => !recentTopics.includes(t));\nif (availableTopics.length === 0) { availableTopics = topics; }\n\nconst randomIndex = Math.floor(Math.random() * availableTopics.length);\nconst selectedTopic = availableTopics[randomIndex];\n\nstaticData.usedTopics.push(selectedTopic);\nif (staticData.usedTopics.length > 15) {\n  staticData.usedTopics = staticData.usedTopics.slice(-15);\n}\n\nreturn [{ json: { topic: selectedTopic } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        480
+      ],
+      "id": "4912b346-e364-44d3-85b6-a1611a49b436",
+      "name": "Topic Randomiser"
+    },
+    {
+      "parameters": {
+        "jsCode": "const topic = $json.topic;\n\nconst styles = [\n  { name: \"3D Render\", description: \"Clean 3D render with soft shadows, studio lighting, smooth materials, subtle reflections\" },\n  { name: \"Neon Cyberpunk\", description: \"Dark cyberpunk aesthetic with neon glow, holographic accents, deep shadows, electric colors\" },\n  { name: \"Flat Design\", description: \"Modern flat design illustration, bold vibrant colors, clean geometric shapes, no gradients\" },\n  { name: \"Isometric\", description: \"Isometric 3D illustration, clean lines, pastel palette, minimal shadows, technical diagram style\" },\n  { name: \"Realistic Photo\", description: \"Cinematic photograph, bokeh background, professional studio lighting, ultra detailed, 8k\" },\n  { name: \"Line Art\", description: \"Minimalist technical line art, single weight strokes, lots of white space, clean and elegant\" },\n  { name: \"Glassmorphism\", description: \"Glassmorphic UI style, frosted glass panels, gradient backgrounds, blurred translucent layers\" },\n  { name: \"Retro Synthwave\", description: \"Retro 80s synthwave aesthetic, grid landscapes, neon pinks and purples, VHS glow effects\" }\n];\n\n// Avoid repeating the same style twice in a row\nconst staticData = $getWorkflowStaticData('global');\nconst lastStyle = staticData.lastStyle || null;\n\nlet available = styles.filter(s => s.name !== lastStyle);\nif (available.length === 0) { available = styles; }\n\nconst style = available[Math.floor(Math.random() * available.length)];\nstaticData.lastStyle = style.name;\n\nreturn [{ json: { topic, styleName: style.name, styleDescription: style.description } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        704
+      ],
+      "id": "90a05d3a-c9ac-4dca-bf9a-cd330085f29a",
+      "name": "Style Randomiser"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-v4-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        480,
+        752
+      ],
+      "id": "3e11617a-e3f2-445f-8600-519f78a92b6c",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "REPLACE_WITH_OPENROUTER_API_ID",
+          "name": "OpenRouter account (configure in n8n)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        768
+      ],
+      "id": "a610c2b3-09f6-4c98-b0b2-e70a9823dbd0",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "REPLACE_WITH_OPENROUTER_API_ID",
+          "name": "OpenRouter account (configure in n8n)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert technical writer and LinkedIn content creator managing a profile for a network technician refreshing their computer science and CCNA Security knowledge.\n\nWrite a LinkedIn post about this topic: {{ $json.topic }}\n\nFollow these rules:\n1. Language: Write in English.\n2. Tone: Professional and encouraging.\n3. Hook: Start with a catchy first sentence and a relevant emoji.\n4. Simplicity: Use short sentences and a fun real-world analogy.\n5. Formatting: Use bullet points and lots of white space.\n6. Call to Action: End with a question to grow the network.\n7. Length: Under 150 words.\n8. Hashtags: Exactly 3 hashtags at the bottom.\n9. No markdown: Do not use bold (**text**) or italic (*text*) formatting. LinkedIn does not render markdown.\n\nOutput ONLY the final LinkedIn post. Do not include any intro or outro text.",
+        "options": {
+          "systemMessage": "You are a professional LinkedIn content creator. Generate engaging, educational posts about networking and security topics. Never use markdown formatting like **bold** or *italic* - use plain text only."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        480,
+        480
+      ],
+      "id": "255d339e-ec07-4ad1-851c-f5bb4a307cf4",
+      "name": "Post Maker",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert AI image prompt engineer for FLUX.1. Your job is to turn a simple IT topic into a sharp, high-quality visual prompt. \n\nFollow these strict rules to build the prompt for: {{ $json.topic }}\n\nVISUAL STYLE: You MUST use this specific style: {{ $json.styleDescription }}\n\n1. NO TEXT BLUNDERS: Do not include complex sentences, long words, or random numbers in the image description. Flux scrambles them. If text is absolutely needed, specify it clearly in quotation marks (e.g., 'The single word \"SECURE\" written in a clean font').\n2. SIMPLICITY & FOCUS: Describe one clear main subject and a simple background. Do not add too many competing elements or over-explain minor details. \n3. ATTENTION-GRABBING: Use strong visual keywords to create high contrast, vibrant lighting, and an eye-catching composition that matches the style.\n4. OUTPUT ONLY: Output only the final expanded image prompt. Do not include any introductory text, explanations, or conversational filler.",
+        "options": {
+          "systemMessage": "You are an image prompt generator. Take the user's topic and the specified visual style, and turn it into a detailed, descriptive visual prompt for FLUX.1. \n\nIncorporate the specified visual style into every aspect of the image description - mood, colors, lighting, and texture.\n\nStrict Rule: Reply ONLY with the final descriptive prompt. Do not say \"Here is your prompt.\" Do not use quotes."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -256,
+        592
+      ],
+      "id": "b67e1b0d-5f46-4c7a-b0a7-b70acd2da886",
+      "name": "Image Prompt Maker",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3f7d5020-0710-4f3c-858f-0485a2bd2963",
+              "name": "width",
+              "value": "={{ $json.width || 1024 }}",
+              "type": "number"
+            },
+            {
+              "id": "39b906fa-3e0b-45b9-9c1b-95cbc51e195d",
+              "name": "prompt",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "3f8593d2-cfb3-437a-a9fc-4430995cb78f",
+              "name": "height",
+              "value": "={{ $json.height || 1024 }}",
+              "type": "number"
+            },
+            {
+              "id": "065181ef-404a-4860-9019-976e6e8391e0",
+              "name": "seed",
+              "value": "={{ Math.floor(Math.random() * 100000000) }}",
+              "type": "number"
+            },
+            {
+              "id": "2c131da3-e708-4468-bb09-d400e7e5f28c",
+              "name": "steps",
+              "value": 6,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        1152
+      ],
+      "id": "3564d93a-f594-4d7b-8e0d-c9db101a6092",
+      "name": "Setup workflow"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f6e30a82-76cd-4bfd-9bc5-b7fffb15e35c",
+              "leftValue": "={{ $json.width * $json.height > 1048576 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        288,
+        1152
+      ],
+      "id": "ad8de853-7b46-4f1f-80fe-27a7e56906cb",
+      "name": "Check image size"
+    },
+    {
+      "parameters": {
+        "errorMessage": "The size of the image (width x height) is larger than 1 megapixel"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        496,
+        1136
+      ],
+      "id": "43f3a4d4-191a-49ad-aaa7-c503762f8193",
+      "name": "Image > 1 megapixel"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reuse the Cloudflare account ID if we already fetched it once\nconst staticData = $getWorkflowStaticData('global');\nif (staticData.cfAccountId) {\n  return [{ json: { cached: true, accountId: staticData.cfAccountId } }];\n}\nreturn [{ json: { cached: false } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        1376
+      ],
+      "id": "2e95e8cf-602c-41c6-89db-199feb972fc4",
+      "name": "Check Account Cache"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "acct-cached-cond-0001",
+              "leftValue": "={{ $json.cached }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        1376
+      ],
+      "id": "e2805eff-b988-4739-b827-55a00a45de68",
+      "name": "Account Cached?"
+    },
+    {
+      "parameters": {
+        "url": "https://api.cloudflare.com/client/v4/accounts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        544,
+        1392
+      ],
+      "id": "9ac0d32f-ede0-4e92-bc9d-6183b1647e9d",
+      "name": "Get accounts",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "REPLACE_WITH_HTTPBEARER_CF_ID",
+          "name": "Bearer Auth (configure in n8n)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nconst accountId = $json.result[0].id;\nstaticData.cfAccountId = accountId;\nreturn [{ json: { accountId } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        688,
+        1392
+      ],
+      "id": "23cc55e2-8a65-4697-96aa-9e7e08a32121",
+      "name": "Cache Account ID"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.cloudflare.com/client/v4/accounts/{{ $json.accountId }}/ai/run/@cf/black-forest-labs/flux-1-schnell",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{ \n\nJSON.stringify(\n  {\n    prompt: $('Setup workflow').item.json.prompt,\n    seed: $('Setup workflow').item.json.seed,\n    \"width\": $('Setup workflow').item.json.width,\n    \"height\": $('Setup workflow').item.json.height,\n    \"steps\": $('Setup workflow').item.json.steps\n  }\n) \n\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        1280
+      ],
+      "id": "52ad6506-863a-4523-b4e0-fbaa36c5c5d3",
+      "name": "Get Flux Schnell image",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "REPLACE_WITH_HTTPBEARER_CF_ID",
+          "name": "Bearer Auth (configure in n8n)"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "image-ok-cond-0001",
+              "leftValue": "={{ !!($json.result && $json.result.image) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        1280
+      ],
+      "id": "2c8bdce8-c42d-4b65-949b-0f2862287ff8",
+      "name": "Image OK?"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "result.image",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1248,
+        1312
+      ],
+      "id": "0fab3fca-3b70-4c2b-84ee-6c7f86fdf78b",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "jsCode": "let post = $('Post Maker').first().json.output || '';\nconst MAX_LENGTH = 2900;\n\n// Strip markdown that LinkedIn won't render\npost = post\n  .replace(/\\*\\*(.*?)\\*\\*/g, '$1')\n  .replace(/\\*(.*?)\\*/g, '$1')\n  .replace(/^#{1,6}\\s/gm, '')\n  .replace(/`{1,3}/g, '')\n  .trim();\n\n// Enforce a maximum of 3 hashtags (drop extras from the end)\nconst hashtags = post.match(/#[A-Za-z0-9_]+/g) || [];\nif (hashtags.length > 3) {\n  let count = 0;\n  post = post\n    .replace(/#[A-Za-z0-9_]+/g, m => (++count <= 3 ? m : ''))\n    .replace(/[ \\t]+\\n/g, '\\n')\n    .trim();\n}\n\n// Trim to max length on a word boundary\nif (post.length > MAX_LENGTH) {\n  post = post.substring(0, MAX_LENGTH);\n  const lastSpace = post.lastIndexOf(' ');\n  if (lastSpace > 0) post = post.substring(0, lastSpace);\n  post += '...';\n}\n\n// Quality gate: never publish empty or suspiciously short content\nif (!post || post.length < 50) {\n  throw new Error('Generated post is too short or empty - aborting to avoid publishing bad content.');\n}\n\nreturn [{ json: { output: post } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        480
+      ],
+      "id": "71c42b0f-682a-4f12-a5b1-846e92be3aa9",
+      "name": "Post Trimmer"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        944,
+        496
+      ],
+      "id": "4038cf9c-ef81-419a-966c-19541588b5f2",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "person": "QXR9DgjPn4",
+        "text": "={{ $('Post Trimmer').first().json.output }}",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        496
+      ],
+      "id": "58a017f0-5b06-44f5-9c44-287697d74394",
+      "name": "Create a post",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "REPLACE_WITH_LINKEDIN_OAUTH2_ID",
+          "name": "LinkedIn account (configure in n8n)"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "person": "QXR9DgjPn4",
+        "text": "={{ $('Post Trimmer').first().json.output }}",
+        "additionalFields": {
+          "visibility": "PUBLIC"
+        }
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        704
+      ],
+      "id": "5916f1ba-9fa5-4f01-b260-cdc19af8663c",
+      "name": "Create text-only post",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "REPLACE_WITH_LINKEDIN_OAUTH2_ID",
+          "name": "LinkedIn account (configure in n8n)"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.postLog) { staticData.postLog = []; }\n\nconst topic = $('Topic Randomiser').first().json.topic;\nconst postContent = $('Post Trimmer').first().json.output;\nconst imageStyle = $('Style Randomiser').first().json.styleName;\nconst now = new Date().toISOString();\n\nlet success = true;\nlet postType = 'image';\nlet errorMsg = null;\n\ntry {\n  const result = $('Create a post').first().json;\n  if (result && result.error) { success = false; errorMsg = String(result.error); }\n} catch (e) {\n  try {\n    const result = $('Create text-only post').first().json;\n    postType = 'text-only';\n    if (result && result.error) { success = false; errorMsg = String(result.error); }\n  } catch (e2) {\n    success = false;\n    postType = 'unknown';\n    errorMsg = 'No post node executed';\n  }\n}\n\nstaticData.postLog.push({\n  date: now,\n  topic: topic,\n  postLength: postContent.length,\n  imageStyle: imageStyle,\n  postType: postType,\n  status: success ? 'posted' : 'failed',\n  error: errorMsg\n});\n\nif (staticData.postLog.length > 50) {\n  staticData.postLog = staticData.postLog.slice(-50);\n}\n\nreturn [{ json: { logged: true, topic, date: now, postType, status: success ? 'posted' : 'failed', error: errorMsg } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        592
+      ],
+      "id": "b158cbc5-d86f-4f60-a8be-ab2b53a0b761",
+      "name": "Log Post"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#social",
+          "mode": "name"
+        },
+        "text": "=Topic  : {{ $json.topic }}\nStatus : {{ $json.status }}\nerror  : {{ $json.error }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1824,
+        592
+      ],
+      "id": "abcfc08c-87d7-4cf5-82ea-29e08c3dfc8f",
+      "name": "Send a message",
+      "webhookId": "27f9e3e0-b92a-47c4-bcaa-d99e5c049f55",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_SLACK_API_ID",
+          "name": "Slack account (configure in n8n)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Topic Randomiser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Topic Randomiser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic Randomiser": {
+      "main": [
+        [
+          {
+            "node": "Post Maker",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Style Randomiser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Style Randomiser": {
+      "main": [
+        [
+          {
+            "node": "Image Prompt Maker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Post Maker",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Prompt Maker",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Maker": {
+      "main": [
+        [
+          {
+            "node": "Post Trimmer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Prompt Maker": {
+      "main": [
+        [
+          {
+            "node": "Setup workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup workflow": {
+      "main": [
+        [
+          {
+            "node": "Check image size",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check image size": {
+      "main": [
+        [
+          {
+            "node": "Image > 1 megapixel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Account Cache",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Account Cache": {
+      "main": [
+        [
+          {
+            "node": "Account Cached?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Account Cached?": {
+      "main": [
+        [
+          {
+            "node": "Get Flux Schnell image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get accounts": {
+      "main": [
+        [
+          {
+            "node": "Cache Account ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cache Account ID": {
+      "main": [
+        [
+          {
+            "node": "Get Flux Schnell image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Flux Schnell image": {
+      "main": [
+        [
+          {
+            "node": "Image OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image OK?": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create text-only post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Post Trimmer": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a post": {
+      "main": [
+        [
+          {
+            "node": "Log Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create text-only post": {
+      "main": [
+        [
+          {
+            "node": "Log Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Post": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  }
+}
